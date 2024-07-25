@@ -59,7 +59,7 @@ namespace UNO
             {
                 try
                 {
-                    Console.Write("How many players are going to play(max 5): ");
+                    Console.Write($"How many players are going to play(max {maxPlayers}): ");
                     totalPlayers = int.Parse(Console.ReadLine());
 
                     //for invalid input
@@ -83,23 +83,15 @@ namespace UNO
                                 playerX.name = Console.ReadLine();
 
                                 if (playerX.name == "")
-                                {
-                                    Msg.Error("Player's name can not be blank!!");
-                                    invalidInputCount++;
-                                    continue;
-                                }
-                                else
-                                {
-                                    invalidInputCount = 0;
+                                    playerX.name = $"Player{i + 1}";
 
-                                    //assigning cards to the player's deck
-                                    playerX.deck = new ArrayList();
-                                    for (int j = 0; j < 5; j++)
-                                    {
-                                        playerX.deck.Add(DrawCard());
-                                    }
-                                    break;
+                                //assigning cards to the player's deck
+                                playerX.deck = new ArrayList();
+                                for (int j = 0; j < 5; j++)
+                                {
+                                    playerX.deck.Add(DrawCard());
                                 }
+                                break;
                             }
                             Players.Add(playerX);
 
@@ -481,8 +473,9 @@ namespace UNO
                 else
                 {
                     playerX.deck.Add(DrawCard());
+                    playerX.deck.Add(DrawCard());
                     Players[playerIndex] = playerX; //saving player's state
-                    Msg.Info($"{playerX.name} didn't call for UNO. Penalty 1 card");
+                    Msg.Info($"{playerX.name} didn't call for UNO. Penalty 2 card");
                 }
             }
         }

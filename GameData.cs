@@ -11,7 +11,7 @@ namespace UNO
         };
 
         //game properties
-        static public int maxPlayers = 5;
+        static public int maxPlayers = 10;
         static public int totalPlayers, tempTotalPlayers;
         static public int invalidInputCount;
         static public int extraCardDrawn;
