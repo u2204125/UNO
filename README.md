@@ -25,6 +25,8 @@ So stay tuned! Don't have a good day, have a great day!!!
 
 - Asks for confirmation before exiting the game.
 
+- For developers, there is a hidden feature that can save a ton of your time while testing or debugging.
+
 ## Installation
 
 One needs to have all the prerequities installed on the local machine to run a C# project (you can check [this](https://www.youtube.com/watch?v=VodLDVAy3QQ) out). Then clone my repo and you are good to go. OR, you can check the [release](https://github.com/u2204125/UNO/releases) section of this repo if you are a window user. Sorry for other os users🙏🙏
