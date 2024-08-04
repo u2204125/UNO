@@ -63,7 +63,7 @@ namespace UNO
                     totalPlayers = int.Parse(Console.ReadLine());
 
                     //for invalid input
-                    if (totalPlayers <= 1 || totalPlayers > 5)
+                    if (totalPlayers <= 1 || totalPlayers > maxPlayers)
                         throw new Exception();
 
                     // for valid input
@@ -79,11 +79,19 @@ namespace UNO
                             Player playerX = new Player();
                             while (invalidInputCount <= 3)
                             {
-                                Console.Write($"\nName of Player{i + 1}: ");
-                                playerX.name = Console.ReadLine();
+                                if(computerMode && (i != 0))
+                                {
+                                    playerX.name = $"Computer{i}";
+                                    playerX.isBot = true;
+                                }
+                                else
+                                {
+                                    Console.Write($"\nName of Player{i + 1}: ");
+                                    playerX.name = Console.ReadLine();
 
-                                if (playerX.name == "")
-                                    playerX.name = $"Player{i + 1}";
+                                    if (playerX.name == "")
+                                        playerX.name = $"Player{i + 1}";
+                                }
 
                                 //assigning cards to the player's deck
                                 playerX.deck = new ArrayList();
@@ -129,6 +137,36 @@ namespace UNO
                     card.OnPlayerDeck = true;
                     Cards[randIndex] = card;
                     return card;
+                }
+            }
+        }
+
+        //clearing the table
+        static public void ClearTable()
+        {
+            //if no +2/+4 card is played
+            if (requiredCard == -1)
+            {
+                foreach (Card tableCard in CardsOnTable)
+                {
+                    tableCard.OnPlayerDeck = false;
+                    Cards[tableCard.Index] = tableCard;
+                }
+                CardsOnTable.Clear();
+            }
+
+            //if any +2/+4 card is played
+            else
+            {
+                for (int j = CardsOnTable.Count; j > 0; j--)
+                {
+                    int x;
+                    if (requiredCard == 10) x = (fineCard / 2) - 1;
+                    else x = (fineCard / 4) - 1;
+
+                    if ((CardsOnTable.Count - j) != x) continue;
+
+                    CardsOnTable.RemoveAt(j - 1);
                 }
             }
         }
@@ -189,129 +227,190 @@ namespace UNO
             inpMsg += ")";
             int cardIndex = OptionPrompt(minInp: 0, maxInp: playerX.deck.Count, inpMsg: inpMsg);
 
-            // if the input is valid
-            if (cardIndex != -1)
+            //if player doesn't have a matching card
+            if (cardIndex == 0)
             {
-                //if player doesn't have a matching card
-                if (cardIndex == 0)
+                //if no +2/+4 card is played
+                if (requiredCard == -1)
                 {
-                    //if no +2/+4 card is played
-                    if (requiredCard == -1)
+                    //haven't drawn a card yet
+                    if (extraCardDrawn == 0)
                     {
-                        //haven't drawn a card yet
-                        if (extraCardDrawn == 0)
-                        {
-                            playerX.deck.Add(DrawCard());
-                            extraCardDrawn++;
-                            Console.Clear();
-                            Players[playerIndex] = playerX; //saving player's state
-                            PlayerTurn(playerIndex);
-                        }
-
-                        //already have drawn a card
-                        else
-                        {
-                            extraCardDrawn = 0;
-                            ChangePlayerTurn(playerIndex);
-                        }
+                        playerX.deck.Add(DrawCard());
+                        extraCardDrawn++;
+                        Players[playerIndex] = playerX; //saving player's state
+                        PlayerTurn(playerIndex);
                     }
 
-                    //if any +2/+4 card is played
+                    //already have drawn a card
                     else
                     {
-                        // assigning extra cards to the player's deck
-                        for (int j = 0; j < fineCard; j++)
-                            playerX.deck.Add(DrawCard());
-
-                        //resetting game properties
-                        fineCard = 0;
-                        requiredCard = -1;
-                        lastCardOnTable = (Card)CardsOnTable[CardsOnTable.Count - 1];
-
-                        //removing cards from the table amd moving to the mother-deck
-                        foreach (Card tableCard in CardsOnTable)
-                        {
-                            tableCard.OnPlayerDeck = false;
-                            Cards[tableCard.Index] = tableCard;
-                        }
-                        CardsOnTable.Clear();
-                        CardsOnTable.Add(lastCardOnTable);
-
-                        Players[playerIndex] = playerX; //saving player's state
+                        extraCardDrawn = 0;
                         ChangePlayerTurn(playerIndex);
                     }
                 }
 
-                //if player has a matching card
+                //if any +2/+4 card is played
                 else
                 {
-                    //if the turn is not valid
-                    if (!validTurn(playerIndex, cardIndex))
-                    {
-                        Console.Clear();
-                        Msg.Error("Invalid move. Try again");
+                    // assigning extra cards to the player's deck
+                    for (int j = 0; j < fineCard; j++)
+                        playerX.deck.Add(DrawCard());
 
-                        invalidInputCount++;
-                        if (invalidInputCount > 3)
-                        {
-                            Msg.TooManyAttempts();
-                            Environment.Exit(0);
-                        }
+                    //resetting game properties
+                    fineCard = 0;
+                    requiredCard = -1;
+                    lastCardOnTable = (Card)CardsOnTable[CardsOnTable.Count - 1];
 
-                        PlayerTurn(playerIndex);
-                    }
-
-                    //if the turn is valid
-                    else
-                    {
-                        //resetting game properties
-                        invalidInputCount = 0;
-                        extraCardDrawn = 0;
-                    }
-                }
-
-                SpecialCardAction((Card)playerX.deck[cardIndex - 1]); //taking actions for special cards
-
-                //----removing cards from the table and moving to the mother-deck---
-                //if no +2/+4 card is played
-                if (requiredCard == -1)
-                {
+                    //removing cards from the table amd moving to the mother-deck
                     foreach (Card tableCard in CardsOnTable)
                     {
                         tableCard.OnPlayerDeck = false;
                         Cards[tableCard.Index] = tableCard;
                     }
                     CardsOnTable.Clear();
+                    CardsOnTable.Add(lastCardOnTable);
+
+                    Players[playerIndex] = playerX; //saving player's state
+                    ChangePlayerTurn(playerIndex);
+                }
+            }
+
+            //if player has a matching card
+            else
+            {
+                //if the turn is not valid
+                if (!validTurn(playerIndex, cardIndex))
+                {
+                    Msg.Error("Invalid move. Try again");
+
+                    invalidInputCount++;
+                    if (invalidInputCount > 3)
+                    {
+                        Msg.TooManyAttempts();
+                        Environment.Exit(0);
+                    }
+                    else
+                        PlayerTurn(playerIndex);
+                }
+
+                //if the turn is valid
+                else
+                {
+                    //resetting game properties
+                    invalidInputCount = 0;
+                    extraCardDrawn = 0;
+                }
+            }
+
+            SpecialCardAction((Card)playerX.deck[cardIndex - 1], false);
+
+            //----removing cards from the table and moving to the mother-deck---
+            ClearTable();
+            CardsOnTable.Add(playerX.deck[cardIndex - 1]);
+            playerX.deck.RemoveAt(cardIndex - 1);
+            Players[playerIndex] = playerX; //saving player's state
+
+            //resetting game properties(color change)
+            lastCardOnTable = (Card)CardsOnTable[CardsOnTable.Count - 1];
+            if ((lastCardOnTable.Number != 13) && (lastCardOnTable.Number != 14))
+                choosenColor = -1;
+
+            UnoCall(playerIndex, false);
+            WinCheck(playerIndex, false);
+            ChangePlayerTurn(playerIndex);
+        }
+
+        //making computer turn
+        static public void ComputerTurn(int playerIndex)
+        {
+            Player compX = (Player)Players[playerIndex]; //selecting current computer
+
+            Card lastCardOnTable = null;
+            
+            //checking for any valid card
+            int i = 0;
+            foreach (Card cardX in compX.deck)
+            {
+                if(validTurn(playerIndex, ++i)){
+                    DisplayCard(cardX.Color, cardX.Number, -1);
+                    break;
+                }
+                else{
+                    if(i == compX.deck.Count)
+                        i = -1;
+                }
+            }
+            
+            // if no valid card is found
+            if (i == -1)
+            {
+                //if no +2/+4 card is played
+                if (requiredCard == -1)
+                {
+                    //haven't drawn a card yet
+                    if (extraCardDrawn == 0)
+                    {
+                        compX.deck.Add(DrawCard());
+                        extraCardDrawn++;
+                        Players[playerIndex] = compX; //saving player's state
+                        ComputerTurn(playerIndex);
+                    }
+
+                    //already have drawn a card
+                    else
+                        extraCardDrawn = 0;
                 }
 
                 //if any +2/+4 card is played
                 else
                 {
-                    for (int j = CardsOnTable.Count; j > 0; j--)
+                    // assigning extra cards to the player's deck
+                    for (int j = 0; j < fineCard; j++)
+                        compX.deck.Add(DrawCard());
+
+                    //resetting game properties
+                    fineCard = 0;
+                    requiredCard = -1;
+                    lastCardOnTable = (Card)CardsOnTable[CardsOnTable.Count - 1];
+
+                    //removing cards from the table amd moving to the mother-deck
+                    foreach (Card tableCard in CardsOnTable)
                     {
-                        int x;
-                        if (requiredCard == 10) x = (fineCard / 2) - 1;
-                        else x = (fineCard / 4) - 1;
-
-                        if ((CardsOnTable.Count - j) != x) continue;
-
-                        CardsOnTable.RemoveAt(j - 1);
+                        tableCard.OnPlayerDeck = false;
+                        Cards[tableCard.Index] = tableCard;
                     }
+                    CardsOnTable.Clear();
+                    CardsOnTable.Add(lastCardOnTable);
+
+                    Players[playerIndex] = compX; //saving player's state
+                    Msg.ComputerTurn(compX.name);
+                    ChangePlayerTurn(playerIndex);
                 }
-
-                CardsOnTable.Add(playerX.deck[cardIndex - 1]);
-                playerX.deck.RemoveAt(cardIndex - 1);
-                Players[playerIndex] = playerX; //saving player's state
-
-                //resetting game properties(color change)
-                lastCardOnTable = (Card)CardsOnTable[CardsOnTable.Count - 1];
-                if ((lastCardOnTable.Number != 13) && (lastCardOnTable.Number != 14)) choosenColor = -1;
-
-                UnoCall(playerIndex); //checking for uno call
-                WinCheck(playerIndex); //checking players win situation
-                ChangePlayerTurn(playerIndex); //passing player turn
             }
-            else Environment.Exit(0); //force termination
+
+            // if valid card is found
+            else
+            {
+                extraCardDrawn = 0;
+                SpecialCardAction((Card)compX.deck[i - 1], true);
+
+                //----removing cards from the table and moving to the mother-deck---
+                ClearTable();
+                CardsOnTable.Add(compX.deck[i - 1]);
+                compX.deck.RemoveAt(i - 1);
+                Players[playerIndex] = compX; //saving player's state
+            }
+
+            //resetting game properties(color change)
+            lastCardOnTable = (Card)CardsOnTable[CardsOnTable.Count - 1];
+            if ((lastCardOnTable.Number != 13) && (lastCardOnTable.Number != 14))
+                choosenColor = -1;
+
+            Msg.ComputerTurn(compX.name);
+            UnoCall(playerIndex, true);
+            WinCheck(playerIndex, true);
+            ChangePlayerTurn(playerIndex);
         }
 
         //passing player turn
@@ -350,7 +449,19 @@ namespace UNO
 
             if(tempTotalPlayers != totalPlayers) tempTotalPlayers = totalPlayers;
 
-            PlayerTurn(playerIndex);
+            if (computerMode)
+            {
+                if (playerIndex == 0)
+                    PlayerTurn(playerIndex);
+                else
+                    ComputerTurn(playerIndex);
+            }
+            else
+            {
+                Msg.Info("Switch location with the next player and hit enter....");
+                Console.ReadLine();
+                PlayerTurn(playerIndex);
+            }
         }
 
         //checking the validity of the turn
@@ -377,7 +488,7 @@ namespace UNO
         }
 
         //taking actions for special cards
-        static private void SpecialCardAction(Card cardX)
+        static private void SpecialCardAction(Card cardX, bool isPlayerBot)
         {
             //+2 card
             if (cardX.Number == 10)
@@ -396,43 +507,53 @@ namespace UNO
 
             //color change
             if (cardX.Number == 13)
-                ColorChoice();
+                ColorChoice(isPlayerBot);
 
             //+4 card
             if (cardX.Number == 14)
             {
                 fineCard += 4;
                 requiredCard = 14;
-                ColorChoice();
+                ColorChoice(isPlayerBot);
             }
         }
 
         //asking for color choice
-        static private void ColorChoice()
+        static private void ColorChoice(bool isPlayerBot)
         {
-            string inpMsg = "1| Green\n";
-            inpMsg += "2| Yellow\n";
-            inpMsg += "3| Red\n";
-            inpMsg += "4| Blue\n";
-            inpMsg += "Enter a color number";
-            int color = OptionPrompt(minInp: 1, maxInp: 4, inpMsg: inpMsg);
+            if (computerMode && isPlayerBot)
+            {
+                Random rnd = new Random();
+                int x = rnd.Next(4);
+                choosenColor = (x == 0) ? 1 : x;
+            }
+            else
+            {
+                string inpMsg = "1| Green\n";
+                inpMsg += "2| Yellow\n";
+                inpMsg += "3| Red\n";
+                inpMsg += "4| Blue\n";
+                inpMsg += "Enter a color number";
+                int color = OptionPrompt(minInp: 1, maxInp: 4, inpMsg: inpMsg);
 
-            if (color == -1) Environment.Exit(0);
-            else choosenColor = color;
+                if (color == -1) Environment.Exit(0);
+                else choosenColor = color;
+            }
         }
 
         //checking players win situation
-        private static void WinCheck(int playerIndex)
+        static private void WinCheck(int playerIndex, bool isPlayerBot)
         {
             Player playerX = (Player)Players[playerIndex];
-            if (playerX.deck.Count == 0)
+            bool isDeckEmpty = (playerX.deck.Count == 0);
+            if (isDeckEmpty)
             {
                 Msg.WinMsg(playerX.name);
                 Players.RemoveAt(playerIndex); //removing player from the game
                 totalPlayers--;
             }
 
-            if (totalPlayers == 1)
+            if ((totalPlayers == 1) || (computerMode && !isPlayerBot && isDeckEmpty))
             {
                 Msg.GameOver();
                 Console.WriteLine("Loading menus......\n\n");
@@ -441,14 +562,20 @@ namespace UNO
         }
 
         //checking for uno call
-        private static void UnoCall(int playerIndex)
+        static private void UnoCall(int playerIndex, bool isPlayerBot)
         {
             Player playerX = (Player)Players[playerIndex];
             if(playerX.deck.Count == 1)
             {
-                Console.Write("Press 0 to call for UNO: ");
-                string inp = Console.ReadLine();
-                
+                string inp;
+                if (computerMode && isPlayerBot)
+                    inp = "0";
+                else
+                {
+                    Console.Write("Press 0 to call for UNO: ");
+                    inp = Console.ReadLine();
+                }
+
                 //if called UNO
                 if (inp == "0")
                 {

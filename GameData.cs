@@ -6,7 +6,8 @@ namespace UNO
     {
         //starting menu options
         static public string[] options = {
-            "Start game",
+            "Play with local players",
+            "Play with computers",
             "Exit"
         };
 
@@ -20,6 +21,7 @@ namespace UNO
         static public int fineCard;
         static public int requiredCard;
         static public int choosenColor;
+        static public bool computerMode;
         static public ArrayList Cards;
         static public ArrayList CardsOnTable;
 
@@ -43,6 +45,7 @@ namespace UNO
         public class Player
         {
             public string name;
+            public bool isBot = false;
             public ArrayList deck;
         }
         static public ArrayList Players;

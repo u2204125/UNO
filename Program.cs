@@ -13,21 +13,39 @@ namespace UNO
         {
             while (true)
             {
-                //displaying manus and asking for input
                 StartManus();
                 int inp = OptionPrompt(maxInp:options.Length+1);
 
-                //starting the game
+                //playing with players
                 if (inp == 1)
                 {
-                    //preapring the game
+                    //------preapring the game------
                     Normalize(); //setting default game properties
                     CreateCards(); //creating all the cards
+                    computerMode = false;
                     PlayerPrompt(); //asking players data
 
                     //adding reference card
                     Card cardX = null;
-                    while (cardX==null || cardX.Number > 9)
+                    while (cardX == null || cardX.Number > 9)
+                        cardX = (Card)DrawCard();
+                    CardsOnTable.Add(cardX);
+
+                    PlayerTurn(0); //staring 1st player turn
+                }
+
+                //playing with computers
+                else if (inp == 2)
+                {
+                    //------preapring the game------
+                    Normalize(); //setting default game properties
+                    CreateCards(); //creating all the cards
+                    computerMode = true;
+                    PlayerPrompt(); //asking players data
+
+                    //adding reference card
+                    Card cardX = null;
+                    while (cardX == null || cardX.Number > 9)
                         cardX = (Card)DrawCard();
                     CardsOnTable.Add(cardX);
 
@@ -35,7 +53,7 @@ namespace UNO
                 }
 
                 //program termination process
-                else if (inp == 2)
+                else if (inp == 3)
                 {
                     //if quiting is confirmed
                     if (Confirm("Are sure about quiting?"))
@@ -46,59 +64,114 @@ namespace UNO
 
                     //if quiting is not confirmed
                     else
-                    {
-                        //too many invalid inputs
-                        if (invalidInputCount > 3)
-                            Environment.Exit(0);
-
-                        else
-                        {
-                            invalidInputCount = 0;
-                            Console.Write("\n\n");
-                        }
-                    }
+                        Console.Clear();
                 }
 
                 //hidden feature: custom testing
-                else if (inp == 3)
+                else if (inp == 4)
                 {
-                    Normalize();
-                    CreateCards();
-                    totalPlayers = 3;
-                    tempTotalPlayers = 3;
+                    CustomTestManus();
+                    int inp2 = OptionPrompt(maxInp: 4);
 
-                    Player p1 = new Player();
-                    Player p2 = new Player();
-                    Player p3 = new Player();
+                    //showing all the cards
+                    if(inp2 == 1)
+                    {
+                        Normalize();
+                        CreateCards();
+                        int i = 0;
+                        foreach(Card cardX in Cards)
+                        {
+                            DisplayCard(cardX.Color, cardX.Number, ++i);
+                        }
+                        Console.Write("Press enter to continue to start menu.....");
+                        Console.ReadLine();
+                        Console.Clear();
+                    }
 
-                    p1.name = "a";
-                    p2.name = "b";
-                    p3.name = "c";
+                    //playing with players
+                    else if (inp2 == 2)
+                    {
+                        Normalize();
+                        CreateCards();
+                        computerMode = false;
+                        totalPlayers = 3;
+                        tempTotalPlayers = 3;
 
-                    p1.deck = new ArrayList();
-                    p2.deck = new ArrayList();
-                    p3.deck = new ArrayList();
+                        Player p1 = new Player();
+                        Player p2 = new Player();
+                        Player p3 = new Player();
 
-                    p1.deck.Add(GameData.Cards[1]);
-                    p1.deck.Add(GameData.Cards[2]);
-                    p1.deck.Add(GameData.Cards[3]);
-                    p3.deck.Add(GameData.Cards[4]);
-                    p3.deck.Add(GameData.Cards[5]);
-                    p2.deck.Add(GameData.Cards[6]);
-                    p2.deck.Add(GameData.Cards[7]);
-                    p2.deck.Add(GameData.Cards[8]);
+                        p1.name = "a";
+                        p2.name = "b";
+                        p3.name = "c";
 
-                    GameData.Players.Add(p1);
-                    GameData.Players.Add(p2);
-                    GameData.Players.Add(p3);
+                        p1.deck = new ArrayList();
+                        p2.deck = new ArrayList();
+                        p3.deck = new ArrayList();
 
-                    CardsOnTable.Add(Cards[0]);
-                    PlayerTurn(0);
+                        p1.deck.Add(GameData.Cards[1]);
+                        p1.deck.Add(GameData.Cards[2]);
+                        p1.deck.Add(GameData.Cards[3]);
+                        p3.deck.Add(GameData.Cards[4]);
+                        p3.deck.Add(GameData.Cards[5]);
+                        p2.deck.Add(GameData.Cards[6]);
+                        p2.deck.Add(GameData.Cards[7]);
+                        p2.deck.Add(GameData.Cards[8]);
+
+                        GameData.Players.Add(p1);
+                        GameData.Players.Add(p2);
+                        GameData.Players.Add(p3);
+
+                        CardsOnTable.Add(Cards[0]);
+                        PlayerTurn(0);
+                    }
+
+                    //playing with computers
+                    else if (inp2 == 3)
+                    {
+                        Normalize();
+                        CreateCards();
+                        computerMode = true;
+                        totalPlayers = 3;
+                        tempTotalPlayers = 3;
+
+                        Player p1 = new Player();
+                        Player c1 = new Player();
+                        Player c2 = new Player();
+
+                        p1.name = "p1";
+                        c1.name = "c1";
+                        c2.name = "c2";
+
+                        p1.deck = new ArrayList();
+                        c1.deck = new ArrayList();
+                        c2.deck = new ArrayList();
+
+                        p1.deck.Add(GameData.Cards[1]);
+                        p1.deck.Add(GameData.Cards[2]);
+                        p1.deck.Add(GameData.Cards[3]);
+                        c2.deck.Add(GameData.Cards[14]);
+                        c2.deck.Add(GameData.Cards[25]);
+                        c1.deck.Add(GameData.Cards[15]);
+                        c1.deck.Add(GameData.Cards[27]);
+                        c1.deck.Add(GameData.Cards[106]);
+
+                        GameData.Players.Add(p1);
+                        GameData.Players.Add(c1);
+                        GameData.Players.Add(c2);
+
+                        CardsOnTable.Add(Cards[0]);
+                        PlayerTurn(0);
+                    }
+
+                    //back to start menu
+                    else if (inp2 == 4)
+                    {
+                        invalidInputCount = 0;
+                        Console.Clear();
+                        continue;
+                    }
                 }
-
-                //too many invalid inputs
-                else if (inp == -1)
-                    Environment.Exit(0);
             }
         }
     }

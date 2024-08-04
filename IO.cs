@@ -1,6 +1,7 @@
 ﻿using System;
 using static UNO.GameData;
 using static UNO.Display;
+using Microsoft.VisualBasic.FileIO;
 
 namespace UNO
 {
@@ -36,42 +37,42 @@ namespace UNO
                     if (invalidInputCount > 3)
                     {
                         Msg.TooManyAttempts(203);
-                        break;
+                        Environment.Exit(0);
                     }
                 }
             }
-
-            return -1;
         }
 
         //asking confirmation
         static public bool Confirm(string msg)
         {
-            Console.Write($"{msg}(y/n): ");
-            string inp = Console.ReadLine();
-
-            // if input is valid
-            if (inp.ToLower() == "y" || inp.ToLower() == "n")
+            while (true)
             {
-                invalidInputCount = 0;
-                return inp.ToLower() == "y" ? true : false;
-            }
+                Console.Write($"{msg}(y/n): ");
+                string inp = Console.ReadLine();
 
-            // if input is not valid
-            else
-            {
-                Msg.Error($"Input must be 'y' or 'n' ");
-                invalidInputCount++;
-
-                //too many invalid attempts
-                if (invalidInputCount > 3)
+                // if input is valid
+                if (inp.ToLower() == "y" || inp.ToLower() == "n")
                 {
-                    Msg.TooManyAttempts();
-                    return false;
+                    invalidInputCount = 0;
+                    return inp.ToLower() == "y" ? true : false;
                 }
 
-                Confirm(msg);
-                return false;
+                // if input is not valid
+                else
+                {
+                    Msg.Error($"Input must be 'y' or 'n' ");
+                    invalidInputCount++;
+
+                    //too many invalid attempts
+                    if (invalidInputCount > 3)
+                    {
+                        Msg.TooManyAttempts();
+                        Environment.Exit(0);
+                    }
+                    else
+                        continue;
+                }
             }
         }
     }
@@ -93,6 +94,25 @@ namespace UNO
             {
                 Console.WriteLine($"{++i}| {option}");
             }
+            Console.Write("\n\n");
+        }
+
+        //Displaying the starting menus
+        static public void CustomTestManus()
+        {
+            Console.Clear();
+            Console.WriteLine("-----------------Custom Test-----------------\n");
+
+            //printing the options
+            int i = 0;
+            Console.WriteLine($"{++i}| Show all the cards");
+            foreach (string option in options)
+            {
+                if(i != options.Length)
+                    Console.WriteLine($"{++i}| {option}");
+            }
+            Console.WriteLine($"{++i}| Go back to start menus");
+
             Console.Write("\n\n");
         }
 
@@ -217,6 +237,11 @@ namespace UNO
             static public void PlayerTurn(string name)
             {
                 Console.WriteLine($"\n\t!! {name}'s turn !!\n");
+            }
+
+            static public void ComputerTurn(string name)
+            {
+                Console.WriteLine($"\n\t!! {name} has played it's turn !!\n");
             }
 
             static public void WinMsg(string name)
