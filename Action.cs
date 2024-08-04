@@ -458,7 +458,7 @@ namespace UNO
             }
             else
             {
-                Msg.Info("Switch location with the next player and hit enter....");
+                Msg.Info("Switch your position with the next player and hit enter....");
                 Console.ReadLine();
                 PlayerTurn(playerIndex);
             }
