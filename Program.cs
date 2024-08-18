@@ -68,7 +68,7 @@ namespace UNO
                 }
 
                 //hidden feature: custom testing
-                else if (inp == 4)
+                else if (inp == (options.Length+1))
                 {
                     CustomTestManus();
                     int inp2 = OptionPrompt(maxInp: 4);
@@ -109,14 +109,14 @@ namespace UNO
                         p2.deck = new ArrayList();
                         p3.deck = new ArrayList();
 
-                        p1.deck.Add(GameData.Cards[1]);
+                        p1.deck.Add(GameData.Cards[106]);
                         p1.deck.Add(GameData.Cards[2]);
                         p1.deck.Add(GameData.Cards[3]);
                         p3.deck.Add(GameData.Cards[4]);
-                        p3.deck.Add(GameData.Cards[5]);
+                        p3.deck.Add(GameData.Cards[107]);
                         p2.deck.Add(GameData.Cards[6]);
                         p2.deck.Add(GameData.Cards[7]);
-                        p2.deck.Add(GameData.Cards[8]);
+                        p2.deck.Add(GameData.Cards[109]);
 
                         GameData.Players.Add(p1);
                         GameData.Players.Add(p2);

@@ -458,7 +458,7 @@ namespace UNO
             }
             else
             {
-                Msg.Info("Switch your position with the next player and hit enter....");
+                Msg.Info("\aSwitch your position with the next player and hit enter....");
                 Console.ReadLine();
                 PlayerTurn(playerIndex);
             }
@@ -475,7 +475,7 @@ namespace UNO
                 return (choosenCard.Number == requiredCard);
 
             //if color change card has been played
-            if (choosenColor != -1)
+            else if (choosenColor != -1)
                 return ((choosenCard.Color == choosenColor) || (choosenCard.Number == 13) || (choosenCard.Number == 14));
 
             Card lastCardOnTable = (Card)CardsOnTable[CardsOnTable.Count - 1];
